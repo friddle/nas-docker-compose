@@ -1,0 +1,18 @@
+version: '3'
+services:
+  nas-tasks:
+    image: whyour/qinglong:latest
+    container_name: "nas-tasks"
+    restart: on-failure:3
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-task.entrypoints=web"
+     - "traefik.http.services.nas-task.loadbalancer.server.port=5700"
+     - "traefik.http.routers.nas-task.rule=Host(`tasks.$HOSTNAME`)"
+    expose:
+      - 9000
+    entrypoint: "/ql/docker/docker-entrypoint.sh"
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/qinglong/:/ql/data/
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-log/qinglong:/ql/data/log/
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"

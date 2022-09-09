@@ -1,0 +1,35 @@
+version: '3'
+services:
+    # nas-alidns:
+    #image: hetaoos/alidns
+    #container_name: "alidns"
+    #restart: on-failure:1
+    #environment:
+    # - Domains=nas.${HOSTNAME}
+    # - Interval=120
+    # - AccessId=${ALIYUN_DNS_ACCESS_ID}
+    # - AccessKey=${ALIYUN_DNS_ACCESS_KEY}
+
+  nas-frpc:
+    image: snowdreamtech/frpc
+    container_name: "nas-frpc"
+    restart: always
+    network_mode: "host"        
+    volumes:
+      - ./config/frpc/frpc.ini:/etc/frp/frpc.ini
+
+  nas-nginx:
+    image:  bitnami/openresty
+    container_name: "nas-nginx"
+    privileged: true
+    user: root
+    restart: always
+    network_mode: "host"        
+    volumes:
+       - ./config/nginx/:/opt/bitnami/openresty/nginx/conf/server_blocks/:rw
+       - ./config/nginx/:/config/:rw
+
+  
+
+
+

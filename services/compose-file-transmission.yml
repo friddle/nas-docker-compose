@@ -1,0 +1,23 @@
+version: '3'
+services:
+  oldiy-transmission:
+    image: oldiy/transmission-twc
+    container_name: nas-oldiy-transmission
+    ports:
+      - 45555:45555
+      - 45555:45555/udp
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/transmission:/config:rw
+      - ${FILE_DOWNLOAD_LOCATION}/downloads:/downloads:rw
+      - ${FILE_DOWNLOAD_LOCATION}/watch:/watch:rw
+    restart: unless-stopped
+    hostname: nas-oldiy-transmission
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-oldiy-transmission.entrypoints=web"
+     - "traefik.http.services.nas-oldiy-transmission.loadbalancer.server.port=9091"
+     - "traefik.http.routers.nas-oldiy-transmission.rule=Host(`transmission.$HOSTNAME`)"

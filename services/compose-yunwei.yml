@@ -1,0 +1,41 @@
+version: '3'
+services:
+  nas-router:
+    image: traefik:v2.4
+    container_name: "nas-router"
+    restart: always
+    command: 
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--api.insecure=true"
+      - "--log.level=DEBUG"
+      - "--entrypoints.ssh.address=:22"
+      - "--entrypoints.third.address=:81"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "7080:80"
+      - "7081:81"
+      - "7082:22"
+      - "7083:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  nas-monitor:
+    image: portainer/portainer-ce:2.11.1
+    container_name: "nas-monitor"
+    restart: always
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-monitor.entrypoints=web"
+     - "traefik.http.services.nas-monitor.loadbalancer.server.port=9000"
+     - "traefik.http.routers.nas-monitor.rule=Host(`docker.$HOSTNAME`)"
+    expose:
+      - 9000
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/yunwei/portainer_data:/data
+
+networks:
+    macvlan:
+      external: 
+         name: v2raynet

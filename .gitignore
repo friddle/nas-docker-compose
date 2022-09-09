@@ -1,0 +1,6 @@
+services/run/nas-data/
+services/run/nas-log/
+logs
+.vscode/
+*nohup*
+

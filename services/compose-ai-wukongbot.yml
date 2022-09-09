@@ -1,0 +1,32 @@
+# miio--->(配置miio-->ps3eyes...)
+version: '3'
+services:
+  wukong-robot:
+    image: wzpan/wukong-robot:latest
+    container_name: wukong-robot
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/wukong/:/root/.wukong/:rw
+      - ./config/wukong/config.yml:/root/.wukong/config.yml:rw
+    restart: unless-stopped
+    hostname: nas-wukongrobot
+    command: python3 wukong.py
+    working_dir: /root/wukong-robot
+    ports:
+     - 5000:5000
+    devices:
+     - /dev/snd:/dev/snds
+    networks:
+     - macvlan
+     - default
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-wukong-robot.entrypoints=web"
+     - "traefik.http.services.nas-wukong-robot.loadbalancer.server.port=5000"
+     - "traefik.http.routers.nas-wukong-robot.rule=Host(`wukong.$HOSTNAME`)"
+
+networks:
+    macvlan:
+      external: 
+         name: v2raynet

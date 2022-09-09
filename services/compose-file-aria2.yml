@@ -1,0 +1,41 @@
+version: '3'
+services:
+  aria2:
+    image: p3terx/aria2-pro
+
+    container_name: aria2-pro
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK_SET=022
+      - RPC_SECRET=${USER_PASS}
+      - PRC_PORT=6800
+      - LISTEN_PORT=6888
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/aria2_pro/:/config:rw
+      - ${FILE_DOWNLOAD_LOCATION}/:/downloads/:rw
+      - ${FILE_PORN_LOCATION}:/porn/:rw
+    hostname: nas-arias
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-aria2.entrypoints=web"
+     - "traefik.http.services.nas-aria2.loadbalancer.server.port=6800"
+     - "traefik.http.routers.nas-aria2.rule=Host(`aria2.$HOSTNAME`)"
+     - "traefik.tcp.routers.nas-aria2-port.rule=HOSTSNI(`ariaport.$HOSTNAME`)"
+     #- "traefik.tcp.routers.nas-aria2-port.service=nas-aria2-port"
+     - "traefik.tcp.routers.nas-aria2-port.entrypoints=third"
+     - "traefik.tcp.services.nas-aria2-port.loadbalancer.server.port=6888"
+  aria2-web:
+    image: p3terx/ariang
+    container_name: ariang
+    hostname: ariang
+    restart: unless-stopped
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/aria2_pro/:/config
+      - ${FILE_MOVIE_LOCATION}:/downloads
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.aria2-web.entrypoints=web"
+     - "traefik.http.services.aria2-web.loadbalancer.server.port=6880"
+     - "traefik.http.routers.aria2-web.rule=Host(`download.$HOSTNAME`)"

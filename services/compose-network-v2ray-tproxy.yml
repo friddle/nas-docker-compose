@@ -1,0 +1,52 @@
+version: "3"
+services:
+  v2raya:
+    container_name: v2rayL
+    image: mzz2017/v2raya
+    hostname: v2rayL
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/v2raya/:/etc/v2raya/
+    ports:
+     - 2017:2017
+     - 1080:1080
+     - 1081:1081
+     - 1082:1082
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-v2rayL.entrypoints=web"
+     - "traefik.http.services.nas-v2rayL.loadbalancer.server.port=2017"
+     - "traefik.http.routers.nas-v2rayL.rule=Host(`v2rayaL.$HOSTNAME`)"
+    networks:
+     - default
+    sysctls: 
+     - "net.ipv4.conf.all.src_valid_mark=1"
+     - "net.ipv4.ip_forward=1"     
+    environment:
+     - V2RAY_PLUGINLISTENPORT=32346
+     - V2RAYA_ADDRESS=0.0.0.0:2017
+    restart: unless-stopped
+  v2raya-proxy:
+    container_name: v2ray_proxy
+    image: mzz2017/v2raya
+    privileged: true
+    hostname: v2rayLProxy
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/v2raya-proxy/:/etc/v2raya/
+    networks:
+      - macvlan
+    sysctls: 
+     - "net.ipv4.conf.all.src_valid_mark=1"
+     - "net.ipv4.ip_forward=1"     
+    cap_add:
+     - NET_ADMIN
+     - SYS_MODULE
+    environment:
+     - V2RAY_PLUGINLISTENPORT=32346
+     - V2RAYA_ADDRESS=0.0.0.0:2017
+    restart: unless-stopped
+
+networks:
+    macvlan:
+      external: 
+         name: v2raynet
+

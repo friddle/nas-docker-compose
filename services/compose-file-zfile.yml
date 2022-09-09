@@ -1,0 +1,42 @@
+version: '3'
+services:
+  zfile:
+    restart: always
+    container_name: nas-zfile
+    image: stilleshan/zfile
+    hostname: nas-zfile
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-zfile.entrypoints=web"
+     - "traefik.http.services.nas-zfile.loadbalancer.server.port=8080"
+     - "traefik.http.routers.nas-zfile.rule=Host(`zfile.$HOSTNAME`)"
+    volumes:
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/zfile:/root/.zfile
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/zfile/db:/root/.zfile/db/
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-log/zfile:/root/.zfile/logs
+     - ${NAS_USER_DATA_LOCATION}:/root/data
+     - ${NAS_USER_DATA_LOCATION_2}:/root/data2
+     - ${FILE_DOWNLOAD_LOCATION}:/root/download
+     - ${PROJECT_REPO_LOCATION}:/root/repo
+     - ${FILE_PORN_LOCATION}:/root/porn
+  zfile-share:
+    restart: always
+    container_name: nas-zfile-share
+    image: stilleshan/zfile
+    hostname: nas-share-zfile
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-zfile-share.entrypoints=web"
+     - "traefik.http.services.nas-zfile-share.loadbalancer.server.port=8080"
+     - "traefik.http.routers.nas-zfile-share.rule=Host(`share.$HOSTNAME`)"
+    volumes:
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/zfileshare:/root/.zfile
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/zfileshare/db:/root/.zfile/db/
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-log/zfileshare:/root/.zfile/logs
+     - ${NAS_USER_DATA_LOCATION}/Book:/root/data/Book
+     - ${NAS_USER_DATA_LOCATION}/share:/root/data/Share
+     - ${NAS_USER_DATA_LOCATION}/Soft:/root/data/Soft
+     - ./config/zfile/password.txt:/root/data/password.txt
+     - ${FILE_DOWNLOAD_LOCATION}:/root/download
+     - ./config/zfile/password.txt:/root/download/password.txt
+

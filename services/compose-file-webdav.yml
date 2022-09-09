@@ -1,0 +1,26 @@
+version: '3'
+services:
+  webdav:
+    image: ugeek/webdav:amd64-alpine
+    container_name: webdav
+    restart: always
+    #ports:
+     # - "80:80"
+     #user: root
+     #privileged: true
+    environment:
+      USERNAME: ${USER_NAME}
+      PASSWORD: ${USER_PASS}
+      TZ: Asian/ShangHai
+      UID: ${PUID}
+      GID: ${PGID}
+    volumes:
+      - ${NAS_USER_DATA_LOCATION}:/data:rw
+      - ./config:/data/config:rw
+      - ${NAS_DOCKER_RUN_LOCATION}:/data/docker/:rw
+    hostname: nas-webdav
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-webdav.entrypoints=web"
+     - "traefik.http.services.nas-webdav.loadbalancer.server.port=80"
+     - "traefik.http.routers.nas-webdav.rule=Host(`webdav.$HOSTNAME`)"

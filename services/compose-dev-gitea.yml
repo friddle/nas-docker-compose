@@ -1,0 +1,36 @@
+version: '3'
+services:
+ gitea:
+  image: gitea/gitea:1.15.7
+  container_name: gitea
+  environment:
+     - A=B
+   #   - USER_UID=${PUID}
+   # - USER_GID=${PGID}
+  restart: always
+  volumes:
+    - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/gitea/:/data
+    - ./config/gitea/ssh:/data/git/.ssh
+    - ${NAS_DOCKER_RUN_LOCATION}/run/nas-log/gitea:/data/gitea/log
+    - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/gitea/db:/data/gitea/db
+    - ${GIT_PROJECT_REPO_LOCATION}:/data/git/repositories
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+  ports:
+    - 7087:22
+  expose:
+     - 3000
+     - 22
+  hostname: nas-gitea
+  labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-gitea-web.entrypoints=web"
+     - "traefik.http.routers.nas-gitea-web.rule=Host(`gitea.$HOSTNAME`)"
+     - "traefik.http.services.nas-gitea-web.loadbalancer.server.port=3000"
+
+     #- "traefik.tcp.routers.nas-gitea-ssh.service=nas-gitea"
+     - "traefik.tcp.services.nas-gitea-ssh.loadbalancer.server.port=22"
+     - "traefik.tcp.routers.nas-gitea-ssh.entrypoints=ssh"
+     #- "traefik.tcp.routers.nas-gitea-ssh.rule=HOSTSNI(`gitssh.$HOSTNAME`)"
+     #- "traefik.tcp.routers.nas-gitea-ssh.tls=false"
+

@@ -1,0 +1,48 @@
+version: '3'
+services:
+  data_mysql:
+    image: 'mysql:5.7'
+    restart: unless-stopped
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${USER_PASS}
+      - MYSQL_USER=${USER_NAME}
+      - MYSQL_PASSWORD=${USER_PASS}
+      - MYSQL_DATABASE=${USER_NAME}
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/mysql/init/:/database/init:/docker-entrypoint-initdb.d/
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/mysql/data:/var/lib/mysql
+    container_name: nas_mysql
+    expose:
+      - 3306
+    entrypoint: >
+      sh -c "
+        docker-entrypoint.sh mysqld \
+          --character-set-server=utf8mb4 \
+          --collation-server=utf8mb4_unicode_ci
+      "
+
+  data_redis:
+    image: bitnami/redis
+    restart: unless-stopped
+    container_name: nas-redis
+    environment:
+      - REDIS_PASSWORD=${USER_PASS}
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379
+    volumes:
+      #- ./config/redis.conf:/etc/redis/redis.conf
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/redis/data:/data
+  data-mongo:
+      image: mongo:4.4.6
+      container_name: nas-mongo
+      ports:
+        - 20710:20170
+      volumes:
+        - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/mongo:/data/db
+      expose:
+        - 27017
+      restart: on-failure:1

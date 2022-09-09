@@ -1,0 +1,20 @@
+#docker run -d --name baidupcs -p 5299:5299 -v /your/downloads:/downloads -v /your/config:/root/.config/BaiduPCS-Go 
+version: '3'
+services:
+  oldiy-baidupcs:
+    image: oldiy/baidupcs:latest
+    container_name: nas-oldiy-baidupcs
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${FILE_DOWNLOAD_LOCATION}/:/root/Downloads/:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/baidupcs/:/root/.config/BaiduPCS-GO/:rw
+    restart: unless-stopped
+    hostname: nas-oldiy-baidupcs
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-oldiy-baidupcs.entrypoints=web"
+     - "traefik.http.services.nas-oldiy-baidupcs.loadbalancer.server.port=5299"
+     - "traefik.http.routers.nas-oldiy-baidupcs.rule=Host(`baidupcs.$HOSTNAME`)"

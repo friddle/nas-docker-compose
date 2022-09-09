@@ -1,0 +1,20 @@
+#docker run -d --name selfoss -p 80:80 -v <本机conf目录>:/var/www/html/conf oldiy/selfoss-docker:latest
+version: '3'
+services:
+  oldiy-selfoss:
+    image: oldiy/selfoss-docker:latest
+    container_name: nas-oldiy-selfoss
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${FILE_DOWNLOAD_LOCATION}/:/downloads
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/selfoss/:/var/www/html/conf
+    restart: unless-stopped
+    hostname: nas-oldiy-selfoss
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-oldiy-selfoss.entrypoints=web"
+     - "traefik.http.services.nas-oldiy-selfoss.loadbalancer.server.port=80"
+     - "traefik.http.routers.nas-oldiy-selfoss.rule=Host(`selfoss.$HOSTNAME`)"

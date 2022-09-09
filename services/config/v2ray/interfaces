@@ -1,0 +1,28 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+#allow-hotplug enp1s0
+auto enp1s0
+iface enp1s0 inet static
+address 192.168.124.144
+netmask 255.255.255.0
+gateway 192.168.124.1
+
+
+auto macvlan
+iface macvlan inet static
+address 192.168.124.146   # 宿主机静态IP地址
+netmask 255.255.255.0  # 子网掩码
+gateway 192.168.124.3    # 虚拟网关IP地址
+dns-nameservers 202.141.176.93 # DNS主服务器
+dns-nameservers 2620:0:ccc::2:443  # DNS备用服务器
+pre-up ip link add v2raymacvlan link enp1s0 type macvlan mode bridge
+post-down ip link del v2raymacvlan link enp1s0 type macvlan mode bridge
+

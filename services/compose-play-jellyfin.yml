@@ -1,0 +1,70 @@
+version: '3'
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: nas-jellyfin
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Shanghai
+   #   - JELLYFIN_PublishedServerUrl=192.168.0.5 #optional
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/jellyfin/:/config:rw
+      - ${FILE_MOVIE_LOCATION}/:/data/movies:rw
+      - ${FILE_TV_LOCATION}/:/data/tv:rw
+      - ${NAS_USER_DATA_PHOTO_LOCATION}/:/data/picture:rw
+      - ${NAS_USER_DATA_BOOK_LOCATION}:/data/books/:rw
+      - ${NAS_USER_DATA_MUSIC_LOCATION}:/data/music/:rw
+      - ${FILE_PORN_LOCATION}:/data/porn/:rw
+    networks:
+     #- macvlan
+     - default
+       #   ports:
+       #- 8096:8096
+       #- 8920:8920 #optional
+       #- 7359:7359/udp #optional
+       #- 1900:1900/udp #optional
+    restart: unless-stopped
+    privileged: true
+    user: root
+    hostname: nas-jellyfin
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-jellyfin.entrypoints=web"
+     - "traefik.http.services.nas-jellyfin.loadbalancer.server.port=8096"
+     - "traefik.http.routers.nas-jellyfin.rule=Host(`jellyfin.$HOSTNAME`)"
+
+  xteve:
+    image: alturismo/xteve_guide2go
+    container_name: nas-xteve
+    environment:
+      - TZ=Asian/ShangHai
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/xteve/:/root/.xteve:rw
+      #- ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/xteve/:/config:rw
+      - ./config/xteve/:/config:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/guide2go/:/guide2go:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-tmp/xteve/:/tmp/xteve:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-tmp/tvheadend/:/TVH:rw
+    #logging:
+    #  driver: none
+    networks:
+     - default
+    expose: 
+     -  34400
+    entrypoint: [ "echo","disable"]
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-xteve.entrypoints=web"
+     - "traefik.http.services.nas-xteve.loadbalancer.server.port=34400"
+     - "traefik.http.routers.nas-xteve.rule=Host(`xteve.$HOSTNAME`)"
+    # docker exec -it nax-xteve ./config/cronjob.sh
+
+
+
+
+
+networks:
+    macvlan:
+      external: 
+         name: v2raynet

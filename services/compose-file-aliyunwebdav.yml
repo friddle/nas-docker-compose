@@ -1,0 +1,21 @@
+version: '3'
+services:
+  aliyun-webdav:
+    image: messense/aliyundrive-webdav
+    container_name: aliyun-webdav
+    restart: unless-stopped
+    ports:
+      - "7001:8080"
+    environment:
+      - REFRESH_TOKEN=${ALIYUN_DRIVER_TOKEN}
+      - WEBDAV_AUTH_USER=${USER_NAME}
+      - WEBDAV_AUTH_PASSWORD=${USER_PASS}
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/aliyun_webdav:/etc/aliyundrive-webdav/
+      - ${NAS_USER_DATA_LOCATION}:/var/lib/dav/data/
+    hostname: nas-aliyun-webdav
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-aliyun-webdav.entrypoints=web"
+     - "traefik.http.services.nas-aliyun-webdav.loadbalancer.server.port=8080"
+     - "traefik.http.routers.nas-aliyun-webdav.rule=Host(`aliyun-webdav.$HOSTNAME`)"

@@ -1,0 +1,21 @@
+#docker run --name wiz --restart=always -it -d -v  D:/wizdata:/wiz/storage -p 80:80 -p 9269:9269/udp wiznote/wizserver
+version: '3'
+services:
+  wiznote:
+    restart: unless-stopped
+    container_name: nas-wiznote
+    expose:
+     - 9269
+     - 80
+    expose:
+     - 9269:9269/udp
+    image: wiznote/wizserver
+    hostname: nas-wiznote
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-wiznote.entrypoints=web"
+     - "traefik.http.services.nas-wiznote.loadbalancer.server.port=80"
+     - "traefik.http.routers.nas-wiznote.rule=Host(`wiznote.$HOSTNAME`)"
+    volumes:
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/wiznote/:/wiz/storage/:rw
+  

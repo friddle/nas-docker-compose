@@ -1,0 +1,27 @@
+services:
+  nas-network-wireguard:
+    image:  weejewel/wg-easy
+    container_name: nas-wireguard
+    ports:
+      - 7086:51820
+      - 7088:51821
+    sysctls:
+      - "net.ipv4.conf.all.src_valid_mark=1"
+      - "net.ipv4.ip_forward=1"
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - WG_HOST= wireguard.nas.friddle.me
+      - PASSWORD=${USER_PASS}
+      - WG_PORT=7086
+      - WG_ALLOWED_IPS= 192.168.124.0/24
+      - WG_DEFAULT_DNS = 223.5.5.5
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/wireguard/:/etc/wireguard
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nas-dev-yapi.entrypoints=web"
+      - "traefik.http.routers.nas-dev-yapi.rule=Host(`wireguard.$HOSTNAME`)"
+      - "traefik.http.services.nas-dev-yapi.loadbalancer.server.port=51821"
+    restart: unless-stopped

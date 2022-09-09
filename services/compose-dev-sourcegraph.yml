@@ -1,0 +1,28 @@
+#docker run --publish 7080:7080 --publish 127.0.0.1:3370:3370 
+#--rm --volume ~/.sourcegraph/config:/etc/sourcegraph --volume ~/.sourcegraph/data:/var/opt/sourcegraph sourcegraph/server:3.37.0
+
+version: '3'
+services:
+ sourcegraph:
+  image: sourcegraph/server:3.37.0
+  container_name: sourcegraph
+  expose:
+    - 7080
+  restart: unless-stopped
+  volumes:
+    - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/sourcegraph/etc/:/etc/sourcegraph
+    - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/sourcegraph/data/:/var/opt/sourcegraph
+    - ${PROJECT_REPO_LOCATION}:/repo/
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+  #ports:
+  #   - "8083
+  #   - "222:22"
+  hostname: nas-sourcegraph
+  labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-sourcegraph.entrypoints=web"
+     - "traefik.http.services.nas-sourcegraph.loadbalancer.server.port=7080"
+     - "traefik.http.routers.nas-sourcegraph.rule=Host(`sourcegraph.$HOSTNAME`)"
+
+

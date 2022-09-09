@@ -1,0 +1,38 @@
+#docker run -d --name youtube-dl-web -p 5555:5555 -v <本机目录>:/youtube_dl oldiy/youtube-dl-web
+version: '3'
+services:
+   nas-youtube:
+    image: tzahi12345/youtubedl-material:nightly
+    environment: 
+        ALLOW_CONFIG_MUTATIONS: 'true'
+        ytdl_mongodb_connection_string: 'mongodb://data-mongo:27017'
+        ytdl_use_local_db: 'true'
+        write_ytdl_config: 'true'
+        ytdl_port: 17442
+        #HTTP_PROXY: 'http://192.168.124.1:1081'
+        #HTTPS_PROXY: 'http://192.168.124.1:1081'
+        UID: 1000
+        GID: 1000
+    volumes:
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/youtubedl/:/app/appdata
+     - ${NAS_USER_DATA_MUSIC_LOCATION}/youtube:/app/audio
+     - ${FILE_MOVIE_LOCATION}/youtube:/app/video
+     - ${FILE_MOVIE_LOCATION}/youtube/subscriptions:/app/subscriptions
+     - ${FILE_MOVIE_LOCATION}/users:/app/users
+    restart: unless-stopped
+    networks:
+     - macvlan
+     - default
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-youtubedl.entrypoints=web"
+     - "traefik.http.services.nas-youtubedl.loadbalancer.server.port=17442"
+     - "traefik.http.routers.nas-youtubedl.rule=Host(`youtubedlx.$HOSTNAME`)"
+
+networks:
+    macvlan:
+      external: 
+         name: v2raynet
+
+
+# --proxy socks5://127.0.0.1:1080

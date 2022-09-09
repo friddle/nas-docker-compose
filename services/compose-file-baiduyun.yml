@@ -1,0 +1,22 @@
+version: '3'
+services:
+   baiduyun:
+    image: johngong/baidunetdisk:latest
+    container_name: baiduyun
+    restart: unless-stopped
+    environment:
+      - vnc_password=${USER_PASS}
+        #- USER_ID=1000
+        #- GROP_ID=1000
+    volumes:
+      - ${FILE_DOWNLOAD_LOCATION}:/home/baidu/baidunetdiskdownload/:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/baidunyun/:/config:rw
+    expose: 
+      - 5800
+      - 5900
+    hostname: nas-baiduyun
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-baiduyun.entrypoints=web"
+     - "traefik.http.services.nas-baiduyun.loadbalancer.server.port=5800"
+     - "traefik.http.routers.nas-baiduyun.rule=Host(`baiduyun.$HOSTNAME`)"

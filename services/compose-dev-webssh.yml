@@ -1,0 +1,18 @@
+#docker run -d --name webssh -p 2222:2222 oldiy/docker-webssh2
+version: '3'
+services:
+  oldiy-webssh:
+    image: oldiy/docker-webssh2:latest
+    container_name: nas-oldiy-webssh
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+    hostname: nas-oldiy-webssh
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-oldiy-webssh.entrypoints=web"
+     - "traefik.http.services.nas-oldiy-webssh.loadbalancer.server.port=2222"
+     - "traefik.http.routers.nas-oldiy-webssh.rule=Host(`webssh.$HOSTNAME`)"
+

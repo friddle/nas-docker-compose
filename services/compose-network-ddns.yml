@@ -1,0 +1,20 @@
+# ddns主要是ipv6
+version: '3'
+services:
+  nas-ddns: 
+    image: jeessy/ddns-go
+    container_name: "nas-ddns"
+    restart: unless-stopped
+    #network_mode: host
+    expose:
+     - 9876
+    environment:
+     - Domains=nasv6.${HOSTNAME}
+    volumes:
+     - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/ddns/:/root/
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-ddns.entrypoints=web"
+     - "traefik.http.services.nas-ddns.loadbalancer.server.port=9876"
+     - "traefik.http.routers.nas-ddns.rule=Host(`ddns.$HOSTNAME`)"
+     

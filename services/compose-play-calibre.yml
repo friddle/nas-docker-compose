@@ -1,0 +1,23 @@
+version: '3'
+services:
+  oldiy-calibre:
+    image:  talebook/talebook
+    container_name: calibre-web
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Shanghai
+   #   - oldiy-calibre_PublishedServerUrl=192.168.0.5 #optional
+    volumes:
+      - ${NAS_USER_DATA_BOOK_LOCATION}/calibre:/data/
+      - ${NAS_USER_DATA_BOOK_LOCATION}:/data/originBook
+      - ./config/talebook/settings.py:/var/www/talebook/webserver/settings.py
+    restart: unless-stopped
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-oldiy-calibre.entrypoints=web"
+     - "traefik.http.services.nas-oldiy-calibre.loadbalancer.server.port=80"
+     - "traefik.http.routers.nas-oldiy-calibre.rule=Host(`book.$HOSTNAME`)"
+
+# scan command 
+# docker exec calibre-web calibredb add --library-path=/data/books/library/  -r /data/originBook/

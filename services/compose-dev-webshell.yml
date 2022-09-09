@@ -1,0 +1,19 @@
+#运行远程webshell的。多个方式也好一点
+version: '3'
+services:
+ webshell:
+  image: psharkey/webssh2
+  container_name: webssh
+  restart: unless-stopped
+  volumes:
+    - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/mindoc:/data/mindoc:rw
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+  expose:
+    - 8181
+  labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-dev-mindoc.entrypoints=web"
+     - "traefik.http.routers.nas-dev-mindoc.rule=Host(`webssh.$HOSTNAME`)"
+     - "traefik.http.services.nas-dev-mindoc.loadbalancer.server.port=2222"
+

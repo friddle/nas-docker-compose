@@ -1,0 +1,25 @@
+version: "3"
+services:
+  code-server:
+    container_name: code-server
+    image: codercom/code-server:latest
+    #user: root
+    volumes:
+      - ${PROJECT_REPO_LOCATION}:/home/coder/project/:rw
+      - /root/NAS_DOCKER_COMPOSE/:/home/coder/project/NAS_DOCKER_COMPOSE/:rw
+      - ./config/vscode/config.yaml:/home/coder/.config/code-server/config.yaml:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-tmp/vscode/.m2:/home/coder/.m2:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-tmp/vscode/code-server:/root/.local/share/code-server/:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-tmp/vscode/.gradle:/home/coder/.gradle:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-tmp/vscode/sdkman:/home/coder/.sdkman:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/vscode/local:/home/coder/.local:rw
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/vscode/config:/home/coder/.config:rw
+      - ${NAS_USER_DATA_LOCATION}:/home/coder/backup
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-vscode.entrypoints=web"
+     - "traefik.http.services.nas-vsocde.loadbalancer.server.port=8080"
+     - "traefik.http.routers.nas-vscode.rule=Host(`code.$HOSTNAME`)"
+    environment:
+      PASSWORD: ${USER_PASS}
+    restart: unless-stopped

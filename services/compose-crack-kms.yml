@@ -1,0 +1,14 @@
+version: '3'
+services:
+  kms-server:
+    image: luodaoyi/kms-server
+    container_name: kms-server
+    restart: unless-stopped
+    ports:
+      - "1688:1688"
+    hostname: nas-kms
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-kms.entrypoints=web"
+     - "traefik.http.services.nas-kms.loadbalancer.server.port=1688"
+     - "traefik.http.routers.nas-kms.rule=Host(`kms.$HOSTNAME`)"

@@ -1,0 +1,29 @@
+#docker run -d --name youtube-dl-web -p 5555:5555 -v <本机目录>:/youtube_dl oldiy/youtube-dl-web
+version: '3'
+services:
+  oldiy-youtubedl:
+    image: oldiy/youtube-dl-web
+    container_name: youtube-dl
+    environment:
+      #- PUID=${PUID}
+      #- PGID=${PGID}
+      - TZ=Asia/Shanghai
+      - HTTP_PROXY=http://192.168.124.2:1081
+      - HTTPS_PROXY=http://192.168.124.2:1081
+   #   - oldiy-youtubedl_PublishedServerUrl=192.168.0.5 #optional
+    networks:
+      - default
+      - macvlan
+    volumes:
+      - ${FILE_MOVIE_LOCATION}:/youtube_dl:rw
+    restart: unless-stopped
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-oldiy-youtubedl.entrypoints=web"
+     - "traefik.http.services.nas-oldiy-youtubedl.loadbalancer.server.port=5555"
+     - "traefik.http.routers.nas-oldiy-youtubedl.rule=Host(`youtubedl.$HOSTNAME`)"
+
+networks:
+    macvlan:
+      external: 
+         name: v2raynet

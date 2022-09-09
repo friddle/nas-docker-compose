@@ -1,0 +1,23 @@
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1 #localhost
+    - 172.18.0.9 #docker_net gw
+    - 172.21.0.1 #docker_net gw
+    - 172.18.0.0/24 #docker
+    - 172.21.0.11 #nginx-proxy hardcoded ip
+    - 31.202.xxx.xxx #my external ip
+  ip_ban_enabled: False
+  login_attempts_threshold: 5

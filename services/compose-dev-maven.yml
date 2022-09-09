@@ -1,0 +1,25 @@
+# docker run -d -p 8081:8081 --name nexus -v /some/dir/nexus-data:/nexus-data sonatype/nexus3
+version: '3'
+services:
+ nexus3:
+  image: sonatype/nexus3
+  container_name: nexus3
+  expose:
+    - 8081
+  restart: unless-stopped
+  volumes:
+    - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/nexus3/data/:/nexus-data
+    - ./config/nexus3/admin.password:/nexus-data/admin.password
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+  #ports:
+  #   - "8083
+  #   - "222:22"
+  hostname: nas-nexus3
+  labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-nexus3.entrypoints=web"
+     - "traefik.http.services.nas-nexus3.loadbalancer.server.port=8081"
+     - "traefik.http.routers.nas-nexus3.rule=Host(`nexus3.$HOSTNAME`)"
+
+

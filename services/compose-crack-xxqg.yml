@@ -1,0 +1,24 @@
+# 设置共享内存2g（shared memory）,减少chrome崩溃
+version: "3.0"
+services:
+    nas-techxuexi:
+        image: techxuexi/techxuexi-amd64
+        container_name: nas-techxuexi-web
+        restart: unless-stopped
+        volumes:
+            - ${NAS_DOCKER_RUN_LOCATION}/run/nas-data/xuexi/config/xuexi/:/xuexi/user
+        expose:
+            - 80
+        shm_size: 1gb
+        environment:
+            - CRONTIME=25 18,0 * * *
+            - ZhuanXiang=True
+            - Pushmode=6
+            #- Pushmode=3
+            - AccessToken=SCT138767TIk0VC1WiSTp8FNua1aBSsYtp
+            #- Secret=SCT138767TIk0VC1WiSTp8FNua1aBSsYtp
+        labels: 
+            - "traefik.enable=true"
+            - "traefik.http.routers.nas-xuexi.entrypoints=web"
+            - "traefik.http.services.nas-xuexi.loadbalancer.server.port=80"
+            - "traefik.http.routers.nas-xuexi.rule=Host(`xuexi.$HOSTNAME`)"

@@ -1,0 +1,27 @@
+version: '3'
+services:
+  homeassiant:
+    image: homeassistant/home-assistant
+    container_name: nas-homeassiant
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/homeassiant/:/config:rw
+      - ./config/homeassiant/configuration.yaml:/config/configuration.yaml:rws
+    restart: unless-stopped
+    hostname: nas-homeassiant
+    networks:
+     - macvlan
+     - default
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-oldiy-homeassiant.entrypoints=web"
+     - "traefik.http.services.nas-oldiy-homeassiant.loadbalancer.server.port=8123"
+     - "traefik.http.routers.nas-oldiy-homeassiant.rule=Host(`homeassiant.$HOSTNAME`)"
+
+networks:
+    macvlan:
+      external: 
+         name: v2raynet

@@ -1,0 +1,29 @@
+#docker run -d --name firefox -p 8083:8083 -p 5900:5900 oldiy/chrome-novnc:latest 内置浏览器。为啥弄这个。因为比如特定网络环境和翻墙
+version: '3'
+services:
+  oldiy-chrome:
+    image: oldiy/chrome-novnc:latest
+    container_name: chrome-novnc
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Asia/Shanghai
+      #- HTTP_PROXY=http://192.168.124.2:1082
+      #- HTTPS_PROXY=http://192.168.124.2:1082
+      #- NO_PROXY=192.168.124.0/24,192.168.123.0/24
+   #   - oldiy-chrome_PublishedServerUrl=192.168.0.5 #optional
+    restart: unless-stopped
+    networks:
+     - macvlan
+     - default
+    labels: 
+     - "traefik.enable=true"
+     - "traefik.http.routers.nas-oldiy-chrome.entrypoints=web"
+     - "traefik.http.services.nas-oldiy-chrome.loadbalancer.server.port=8083"
+     - "traefik.http.routers.nas-oldiy-chrome.rule=Host(`chrome.$HOSTNAME`)"
+
+networks:
+    macvlan:
+      external: 
+         name: v2raynet
+     

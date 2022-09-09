@@ -1,0 +1,21 @@
+version: '3'
+services:
+  nas-mysql-workbench:
+    image: lscr.io/linuxserver/mysql-workbench
+    container_name: nas-mysql-workbench
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=Europe/London
+    volumes:
+      - ${NAS_DOCKER_RUN_LOCATION}/run/nas-config/workbench:/config
+    expose:
+      - 3000
+    cap_add:
+      - IPC_LOCK
+    restart: unless-stopped
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.nas-dev-workbench.entrypoints=web"
+      - "traefik.http.routers.nas-dev-workbench.rule=Host(`workbench.$HOSTNAME`)"
+      - "traefik.http.services.nas-dev-workbench.loadbalancer.server.port=3000"
